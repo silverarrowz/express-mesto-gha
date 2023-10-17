@@ -1,7 +1,7 @@
 {
   "name": "mesto-express",
   "version": "1.0.0",
-  "description": "",
+  "description": "Mesto Express",
   "main": "index.js",
   "scripts": {
     "start": "node app.js",
@@ -9,7 +9,7 @@
     "lint": "npx eslint .",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "",
+  "author": "Diana K.",
   "license": "ISC",
   "devDependencies": {
     "eslint": "^8.51.0",
