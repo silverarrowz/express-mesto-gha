@@ -11,7 +11,13 @@ module.exports.createCard = (req, res) => {
   const { name, link } = req.body;
   Card.create({ name, link, owner })
     .then((card) => res.status(201).send({ data: card }))
-    .catch((err) => res.status(500).send({ error: err.message }));
+    .catch((error) => {
+      if (error.name === 'ValidationError') {
+        res.status(400).send({ message: 'Переданы некорректные данные' });
+      } else {
+        res.status(500).send({ message: 'Ошибка сервера' });
+      }
+    });
 };
 
 module.exports.deleteCard = (req, res) => {
@@ -37,7 +43,13 @@ module.exports.addLike = (req, res) => {
       }
       res.send({ data: card });
     })
-    .catch((err) => res.status(500).send({ error: err.message }));
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        res.status(400).send({ message: 'Передан некорректный идентифкатор' });
+      } else {
+        res.status(500).send({ message: 'Ошибка сервера' });
+      }
+    });
 };
 
 module.exports.removeLike = (req, res) => {
@@ -51,5 +63,11 @@ module.exports.removeLike = (req, res) => {
       }
       res.send({ data: card });
     })
-    .catch((err) => res.status(500).send({ error: err.message }));
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        res.status(400).send({ message: 'Передан некорректный идентифкатор' });
+      } else {
+        res.status(500).send({ message: 'Ошибка сервера' });
+      }
+    });
 };
