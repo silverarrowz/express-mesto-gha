@@ -61,12 +61,13 @@ module.exports.updateAvatar = (req, res) => {
   const { avatar } = req.body;
   const userId = req.user._id;
 
-  User.findByIdAndUpdate(userId, avatar, { new: true, runValidators: true })
-    .then((user) => {
-      if (!user) {
+  User.findByIdAndUpdate(userId, { avatar }, { new: true, runValidators: true })
+    .then(() => {
+      if (avatar) {
+        res.send({ data: avatar });
+      } else {
         res.status(404).send({ message: 'Пользователь не найден' });
       }
-      res.send({ data: avatar });
     })
     .catch((error) => {
       if (error.name === 'ValidationError') {
