@@ -29,7 +29,13 @@ module.exports.deleteCard = (req, res) => {
       }
       res.send({ data: card });
     })
-    .catch((err) => res.status(500).send({ error: err.message }));
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        res.status(400).send({ message: 'Передан некорректный идентифкатор' });
+      } else {
+        res.status(500).send({ message: 'Ошибка сервера' });
+      }
+    });
 };
 
 module.exports.addLike = (req, res) => {
