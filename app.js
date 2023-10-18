@@ -1,7 +1,6 @@
 const express = require('express');
 const mongoose = require('mongoose');
-const userRouter = require('./routes/users');
-const cardRouter = require('./routes/cards');
+const router = require('./routes/index');
 
 const { PORT = 3000, DB_PATH = 'mongodb://127.0.0.1:27017/mestodb' } = process.env;
 const app = express();
@@ -22,8 +21,7 @@ mongoose.connect(DB_PATH, {
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-app.use(userRouter);
-app.use(cardRouter);
+app.use(router);
 
 app.listen(PORT, () => {
   console.log(`App listening on port ${PORT}`);
