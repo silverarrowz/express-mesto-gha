@@ -66,7 +66,7 @@ module.exports.updateAvatar = (req, res) => {
       if (!user) {
         res.status(404).send({ message: 'Пользователь не найден' });
       }
-      res.send({ data: user });
+      res.send({ data: avatar });
     })
     .catch((error) => {
       if (error.name === 'ValidationError') {
