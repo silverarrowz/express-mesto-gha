@@ -25,3 +25,31 @@ module.exports.deleteCard = (req, res) => {
     })
     .catch((err) => res.status(500).send({ error: err.message }));
 };
+
+module.exports.addLike = (req, res) => {
+  const { cardId } = req.params;
+  const userId = req.user._id;
+
+  Card.findByIdAndUpdate(cardId, { $addToSet: { likes: userId } }, { new: true })
+    .then((card) => {
+      if (!card) {
+        res.status(404).send({ message: 'Карточка не найдена' });
+      }
+      res.send({ data: card });
+    })
+    .catch((err) => res.status(500).send({ error: err.message }));
+};
+
+module.exports.removeLike = (req, res) => {
+  const { cardId } = req.params;
+  const userId = req.user._id;
+
+  Card.findByIdAndUpdate(cardId, { $pull: { likes: userId } }, { new: true })
+    .then((card) => {
+      if (!card) {
+        res.status(404).send({ message: 'Карточка не найдена' });
+      }
+      res.send({ data: card });
+    })
+    .catch((err) => res.status(500).send({ error: err.message }));
+};
