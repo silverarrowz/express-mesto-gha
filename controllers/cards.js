@@ -3,7 +3,7 @@ const {
   BAD_REQUEST,
   NOT_FOUND,
   INTERNAL_SERVER_ERROR,
-} = require('../utils/errors');
+} = require('../utils/error_constants');
 
 module.exports.getAllCards = (req, res) => {
   Card.find({})
