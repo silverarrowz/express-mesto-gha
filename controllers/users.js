@@ -1,44 +1,43 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const NotFoundError = require('../utils/errors/NotFoundError');
+
+const ForbiddenError = require('../utils/errors/ForbiddenError');
 const BadRequestError = require('../utils/errors/BadRequestError');
+const NotFoundError = require('../utils/errors/NotFoundError');
+const InternalServerError = require('../utils/errors/InternalServerError');
 
 const User = require('../models/user');
-const {
-  BAD_REQUEST,
-  NOT_FOUND,
-  INTERNAL_SERVER_ERROR,
-} = require('../utils/error_constants');
 
-module.exports.getAllUsers = (req, res) => {
+// const {
+//   BAD_REQUEST,
+//   NOT_FOUND,
+//   INTERNAL_SERVER_ERROR,
+// } = require('../utils/error_constants');
+
+module.exports.getAllUsers = (req, res, next) => {
   User.find({})
     .then((users) => res.send({ data: users }))
-    .catch((err) => {
-      console.error('Ошибка сервера:', err);
-      res.status(INTERNAL_SERVER_ERROR).send({ message: 'Ошибка сервера' });
-    });
+    .catch((err) => next(err));
 };
 
-module.exports.getUserById = (req, res) => {
+module.exports.getUserById = (req, res, next) => {
   const { userId } = req.params;
   User.findById(userId)
     .then((user) => {
       if (!user) {
-        return res.status(NOT_FOUND).send({ message: 'Пользователь не найден' });
+        return next(new NotFoundError('Пользователь не найден'));
       }
       return res.send({ data: user });
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        res.status(BAD_REQUEST).send({ message: 'Передан некорректный идентификатор' });
-      } else {
-        console.error('Ошибка сервера:', err);
-        res.status(INTERNAL_SERVER_ERROR).send({ message: 'Ошибка сервера' });
+        return next(new BadRequestError('Передан некорректный идентифкатор'));
       }
+      return next(err);
     });
 };
 
-module.exports.createUser = (req, res) => {
+module.exports.createUser = (req, res, next) => {
   const {
     name,
     about,
@@ -64,36 +63,32 @@ module.exports.createUser = (req, res) => {
       }))
       .catch((err) => {
         if (err.name === 'ValidationError') {
-          res.status(BAD_REQUEST).send({ message: 'Переданы некорректные данные' });
-        } else {
-          console.error('Ошибка сервера:', err);
-          res.status(INTERNAL_SERVER_ERROR).send({ message: 'Ошибка сервера' });
+          return next(new BadRequestError('Переданы некорректные данные'));
         }
+        return next(err);
       }));
 };
 
-module.exports.updateInfo = (req, res) => {
+module.exports.updateInfo = (req, res, next) => {
   const updates = req.body;
   const userId = req.user._id;
 
   User.findByIdAndUpdate(userId, updates, { new: true, runValidators: true })
     .then((user) => {
       if (!user) {
-        return res.status(NOT_FOUND).send({ message: 'Пользователь не найден' });
+        return next(new NotFoundError('Пользователь не найден'));
       }
       return res.send({ data: user });
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        res.status(BAD_REQUEST).send({ message: 'Переданы некорректные данные' });
-      } else {
-        console.error('Ошибка сервера:', err);
-        res.status(INTERNAL_SERVER_ERROR).send({ message: 'Ошибка сервера' });
+        return next(new BadRequestError('Передан некорректный идентифкатор'));
       }
+      return next(err);
     });
 };
 
-module.exports.updateAvatar = (req, res) => {
+module.exports.updateAvatar = (req, res, next) => {
   const { avatar } = req.body;
   const userId = req.user._id;
 
@@ -101,21 +96,18 @@ module.exports.updateAvatar = (req, res) => {
     .then(() => {
       if (avatar) {
         res.send({ avatar });
-      } else {
-        res.status(NOT_FOUND).send({ message: 'Пользователь не найден' });
       }
+      return next(new NotFoundError('Пользователь не найден'));
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        res.status(BAD_REQUEST).send({ message: 'Переданы некорректные данные' });
-      } else {
-        console.error('Ошибка сервера:', err);
-        res.status(INTERNAL_SERVER_ERROR).send({ message: 'Ошибка сервера' });
+        return next(new BadRequestError('Передан некорректный идентифкатор'));
       }
+      return next(err);
     });
 };
 
-module.exports.login = (req, res) => {
+module.exports.login = (req, res, next) => {
   const { email, password } = req.body;
 
   User.findUserByCredentials(email, password)
@@ -123,14 +115,7 @@ module.exports.login = (req, res) => {
       const token = jwt.sign({ _id: user._id }, 'some-secret-key', { expiresIn: '7d' });
       res.send({ token });
     })
-    .catch((err) => {
-      if (err.message === 'Неправильные почта или пароль') {
-        res.status(401).send({ message: 'Неправильные почта или пароль' });
-      } else {
-        console.error('Ошибка сервера:', err);
-        res.status(500).send({ message: 'Ошибка сервера' });
-      }
-    });
+    .catch((err) => next(err));
 };
 
 module.exports.getCurrentUser = (req, res, next) => {
