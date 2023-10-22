@@ -1,5 +1,7 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const NotFoundError = require('../utils/errors/NotFoundError');
+const BadRequestError = require('../utils/errors/BadRequestError');
 
 const User = require('../models/user');
 const {
@@ -128,5 +130,27 @@ module.exports.login = (req, res) => {
         console.error('Ошибка сервера:', err);
         res.status(500).send({ message: 'Ошибка сервера' });
       }
+    });
+};
+
+module.exports.getCurrentUser = (req, res, next) => {
+  User.findById(req.user._id)
+    .then((user) => {
+      if (!user) {
+        return next(new NotFoundError('Пользователь не найден'));
+      }
+      return res.send({
+        email: user.email,
+        name: user.name,
+        about: user.about,
+        avatar: user.avatar,
+        _id: user._id,
+      });
+    })
+    .catch((err) => {
+      if (err.name === 'CastError' || err.name === 'ValidationError') {
+        return next(new BadRequestError('Передан некорректный идентификатор'));
+      }
+      return next(err);
     });
 };
