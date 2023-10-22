@@ -1,18 +1,11 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
-const ForbiddenError = require('../utils/errors/ForbiddenError');
 const BadRequestError = require('../utils/errors/BadRequestError');
 const NotFoundError = require('../utils/errors/NotFoundError');
-const InternalServerError = require('../utils/errors/InternalServerError');
+const ConflictError = require('../utils/errors/ConflictError');
 
 const User = require('../models/user');
-
-// const {
-//   BAD_REQUEST,
-//   NOT_FOUND,
-//   INTERNAL_SERVER_ERROR,
-// } = require('../utils/error_constants');
 
 module.exports.getAllUsers = (req, res, next) => {
   User.find({})
@@ -64,6 +57,9 @@ module.exports.createUser = (req, res, next) => {
       .catch((err) => {
         if (err.name === 'ValidationError') {
           return next(new BadRequestError('Переданы некорректные данные'));
+        }
+        if (err.code === 11000) {
+          return next(new ConflictError('Пользователь с таким email уже зарегистрирован'));
         }
         return next(err);
       }));

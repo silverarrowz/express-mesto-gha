@@ -1,16 +1,11 @@
 const Card = require('../models/card');
-const ForbiddenError = require('../utils/errors/ForbiddenError');
 const BadRequestError = require('../utils/errors/BadRequestError');
 const NotFoundError = require('../utils/errors/NotFoundError');
-const InternalServerError = require('../utils/errors/InternalServerError');
 
 module.exports.getAllCards = (req, res, next) => {
   Card.find({})
     .then((cards) => res.send({ data: cards }))
-    .catch((err) => {
-      console.error('Ошибка сервера:', err);
-      next(new InternalServerError('Ошибка сервера'));
-    });
+    .catch((err) => next(err));
 };
 
 module.exports.createCard = (req, res, next) => {
@@ -18,12 +13,11 @@ module.exports.createCard = (req, res, next) => {
   const { name, link } = req.body;
   Card.create({ name, link, owner })
     .then((card) => res.send({ data: card }))
-    .catch((error) => {
-      if (error.name === 'ValidationError') {
+    .catch((err) => {
+      if (err.name === 'ValidationError') {
         return next(new BadRequestError('Передан некорректный идентифкатор'));
       }
-      console.error('Ошибка сервера:', error);
-      return next(new InternalServerError('Ошибка сервера'));
+      return next(err);
     });
 };
 
@@ -42,8 +36,7 @@ module.exports.deleteCard = (req, res, next) => {
       if (err.name === 'CastError') {
         return next(new BadRequestError('Передан некорректный идентифкатор'));
       }
-      console.error('Ошибка сервера:', err);
-      return next(new InternalServerError('Ошибка сервера'));
+      return next(err);
     });
 };
 
@@ -62,8 +55,7 @@ module.exports.addLike = (req, res, next) => {
       if (err.name === 'CastError') {
         return next(new BadRequestError('Передан некорректный идентифкатор'));
       }
-      console.error('Ошибка сервера:', err);
-      return next(new InternalServerError('Ошибка сервера'));
+      return next(err);
     });
 };
 
@@ -82,7 +74,6 @@ module.exports.removeLike = (req, res, next) => {
       if (err.name === 'CastError') {
         return next(new BadRequestError('Передан некорректный идентифкатор'));
       }
-      console.error('Ошибка сервера:', err);
-      return next(new InternalServerError('Ошибка сервера'));
+      return next(err);
     });
 };
