@@ -1,4 +1,5 @@
 const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 
 const User = require('../models/user');
 const {
@@ -108,6 +109,24 @@ module.exports.updateAvatar = (req, res) => {
       } else {
         console.error('Ошибка сервера:', err);
         res.status(INTERNAL_SERVER_ERROR).send({ message: 'Ошибка сервера' });
+      }
+    });
+};
+
+module.exports.login = (req, res) => {
+  const { email, password } = req.body;
+
+  User.findUserByCredentials(email, password)
+    .then((user) => {
+      const token = jwt.sign({ _id: user._id }, 'some-secret-key', { expiresIn: '7d' });
+      res.send({ token });
+    })
+    .catch((err) => {
+      if (err.message === 'Неправильные почта или пароль') {
+        res.status(401).send({ message: 'Неправильные почта или пароль' });
+      } else {
+        console.error('Ошибка сервера:', err);
+        res.status(500).send({ message: 'Ошибка сервера' });
       }
     });
 };
