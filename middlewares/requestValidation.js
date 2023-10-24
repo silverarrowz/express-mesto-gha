@@ -1,6 +1,6 @@
 const { celebrate, Joi, Segments } = require('celebrate');
 
-const regexUrl = /\b(https?):\/\/[\-A-Za-z0-9+&@#\/%?=~_|!:,.;]*[\-A-Za-z0-9+&@#\/%=~_|]/;
+const regexUrl = /\b(https?):\/\/[-A-Za-z0-9+&@#/%?=~_|!:,.;]*[-A-Za-z0-9+&@#/%=~_|]/;
 
 // User data validation
 
@@ -14,7 +14,7 @@ module.exports.validationCreateUser = celebrate({
   [Segments.BODY]: {
     name: Joi.string().min(2).max(30),
     about: Joi.string().min(2).max(30),
-    avatar: Joi.string().uri(),
+    avatar: Joi.string().pattern(regexUrl),
     email: Joi.string().email().required(),
     password: Joi.string().required(),
   },
@@ -45,7 +45,7 @@ module.exports.validationUpdateAvatar = celebrate({
 module.exports.validationCreateCard = celebrate({
   [Segments.BODY]: {
     name: Joi.string().min(2).max(30).required(),
-    link: Joi.string().required(),
+    link: Joi.string().pattern(regexUrl).required(),
   },
 });
 
