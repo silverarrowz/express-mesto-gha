@@ -10,7 +10,7 @@ const User = require('../models/user');
 module.exports.getAllUsers = (req, res, next) => {
   User.find({})
     .then((users) => res.send({ data: users }))
-    .catch((err) => next(err));
+    .catch(next);
 };
 
 module.exports.getUserById = (req, res, next) => {
