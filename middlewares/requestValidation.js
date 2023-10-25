@@ -1,6 +1,6 @@
 const { celebrate, Joi, Segments } = require('celebrate');
 
-const regexUrl = /(\b(https?):\/\/(www\.)?(\w[a-zA-Z0-9-]{2,})+(\.{1})([a-z]{2,6})+)(\/[a-zA-Z0-9.\-_~:/?#[\]@!$&'()*+,;=]*)*/;
+const regexUrl = /\b(https?):\/\/(www\.)?[-A-Za-z0-9-._~:/?#[\]@!$&'()*+,;=]+\.([a-z]{2,6})+(\/[-A-Za-z0-9-._~:/?#[\]@!$&'()*+,;=]*)*/;
 
 // User data validation
 
